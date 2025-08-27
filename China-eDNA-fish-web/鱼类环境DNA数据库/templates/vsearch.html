@@ -1,0 +1,99 @@
+<head>
+    <meta charset="UTF-8">
+    <title>VSEARCH Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3e8e41;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color:  #7CCD7C;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>vsearch 分类注释</h1>
+        <form id="vsearch-form">
+            <label for="input_file">输入文件（--sintax 指定包含待分类序列的文件，一般是 FASTA 格式）:</label>
+            <input type="text" id="input_file" name="input_file" required><br>
+            <label for="output_file">结果文件（分类学注释信息结果）:</label>
+            <input type="text" id="output_file" name="output_file" required><br>
+            <button type="submit">开始分析</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('vsearch-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('/run_vsearch/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                if (data.status === 'success') {
+                    resultDiv.innerHTML = `<p class="success">Success: 分析完成！${data.message}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">Error: ${data.message}</p>`;
+                }
+            });
+        });
+    </script>
+</body>
