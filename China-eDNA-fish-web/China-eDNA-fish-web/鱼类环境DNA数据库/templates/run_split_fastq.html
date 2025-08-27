@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>fastq-multx Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        fieldset {
+            border: none;
+            padding: 0;
+        }
+
+        legend {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #3e8e41;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #7CCD7C;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .success-message {
+            color: green;
+        }
+
+        .error-message {
+            color: red;
+        }
+
+        .loading {
+            text-align: center;
+            font-weight: bold;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>fastq-multx 分析</h1>
+
+        <!-- 表单提交 -->
+        <form id="split-fastq-form">
+            {% csrf_token %}
+
+            <fieldset>
+                <legend>输入参数</legend>
+
+                <label for="barcode_file">条形码文件（-B 参数）:</label>
+                <input type="text" id="barcode_file" name="barcode_file" value="20241024.txt" required><br>
+
+                <label for="input_file1">输入文件1（R1.fastq）:</label>
+                <input type="text" id="input_file1" name="input_file1" value="Rawq/GZ24053799_R1.fastq" required><br>
+
+                <label for="input_file2">输入文件2（R2.fastq）:</label>
+                <input type="text" id="input_file2" name="input_file2" value="Rawq/GZ24053799_R2.fastq" required><br>
+
+                <label for="output_dir">输出目录（split2）:</label>
+                <input type="text" id="output_dir" name="output_dir" value="split2" required><br>
+
+                <label for="mismatch">不匹配数（-m 参数，默认1）:</label>
+                <input type="number" id="mismatch" name="mismatch" value="1" required><br>
+            </fieldset>
+
+            <button type="submit">开始分析</button>
+        </form>
+
+        <!-- 显示执行结果 -->
+        <div id="result"></div>
+    </div>
+
+    <!-- JavaScript 请求逻辑 -->
+    <script>
+        document.getElementById('split-fastq-form').addEventListener('submit', function (e) {
+            e.preventDefault(); // 阻止默认表单提交行为
+
+            const formData = new FormData(this); // 收集表单数据
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p class="loading">正在处理...</p>'; // 显示加载状态
+
+            fetch('/run_split_fastq/', {
+                method: 'POST',
+                headers: {
+                   'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // Django CSRF Token
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    resultDiv.innerHTML = `<p class="success-message">Success: 分析完成！${data.message}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p class="error-message">Error: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                resultDiv.innerHTML = `<p class="error-message">网络错误：请检查后端服务是否运行。</p>`;
+            });
+        });
+    </script>
+</body>
+</html>
