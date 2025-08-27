@@ -26,7 +26,7 @@ jobs:
       - name: 提交更改
         run: |
           # 配置Git用户信息（GitHub Action内置）
-          git config --global user.name "GitHub Action"
+          git config --global user.name "liuying122"
           git config --global user.email "action@github.com"
           # 添加解压后的文件
           git add China-eDNA-fish-web
