@@ -1,0 +1,39 @@
+name: 自动解压ZIP文件
+on:
+  push:
+    paths:
+      - 'China-eDNA-fish-web.zip'  # 监控此压缩包的变动（修改为你的压缩包名称）
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest  # 使用Ubuntu环境运行
+    steps:
+      # 步骤1：检出仓库代码
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # 步骤2：解压ZIP文件到指定目录
+      - name: 解压文件
+        run: |
+          # 创建解压目录（若不存在）
+          mkdir -p China-eDNA-fish-web
+          # 解压China-eDNA-fish-web.zip到China-eDNA-fish-web目录（覆盖已存在文件）
+          unzip -o China-eDNA-fish-web.zip -d China-eDNA-fish-web
+          # 查看解压结果（可选）
+          ls -l China-eDNA-fish-web
+
+      # 步骤3：提交解压后的文件到仓库
+      - name: 提交更改
+        run: |
+          # 配置Git用户信息（GitHub Action内置）
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          # 添加解压后的文件
+          git add China-eDNA-fish-web
+          # 检查是否有变更（避免空提交）
+          if git diff --quiet --staged; then
+            echo "无新文件需要提交"
+          else
+            git commit -m "自动解压China-eDNA-fish-web.zip文件"
+            git push origin main  # 推送到main分支（根据你的分支名修改）
+          fi
