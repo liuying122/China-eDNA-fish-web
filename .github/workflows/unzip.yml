@@ -18,7 +18,7 @@ jobs:
           # 创建解压目录（若不存在）
           mkdir -p China-eDNA-fish-web
           # 解压China-eDNA-fish-web.zip到China-eDNA-fish-web目录（覆盖已存在文件）
-          unzip -o China-eDNA-fish-web.zip -d China-eDNA-fish-web
+          unzip China-eDNA-fish-web.zip -d ./
           # 查看解压结果（可选）
           ls -l China-eDNA-fish-web
 
